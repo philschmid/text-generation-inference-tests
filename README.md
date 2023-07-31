@@ -21,7 +21,7 @@ k6 run sharegpt_load.js -e HOST=https://xxx
 ```bash
 -e HOST=https://xxx # host url
 -e DO_SAMPLE=1 # do sample request
-``````
+```
 
 ## Installation
 

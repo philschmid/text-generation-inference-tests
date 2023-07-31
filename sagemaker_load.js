@@ -1,1 +1,0 @@
-https://k6.io/docs/examples/http-authentication/#aws-signature-v4-authentication-with-the-k6-jslib-aws
