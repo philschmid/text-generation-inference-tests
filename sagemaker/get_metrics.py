@@ -2,7 +2,6 @@ import json
 import time
 import boto3
 import argparse
-import awswrangler as wr
 import re
 
 import pandas as pd
@@ -16,6 +15,9 @@ def parse_args():
     parser.add_argument("--st", type=int, required=True)
     parser.add_argument("--et", type=int, required=True)
     parser.add_argument("--instance_type", type=str, required=True)
+    parser.add_argument("--tp_degree", type=str, required=True)
+    parser.add_argument("--model_id", type=str, required=True)
+    parser.add_argument("--quantize", type=str)
     return parser.parse_args()
 
 
@@ -32,12 +34,24 @@ def extract_metrics(input_string):
     kpi_pattern = r'#\d+\[3m(\w+)#\d+\[0m#\d+\[2m=#\d+\[0m"([^"]+)"'
     kpis = re.findall(kpi_pattern, input_string)
     kpi_dict = dict(kpis)
-    return {
-        "total_time_ms": convert_string_to_float_ms(kpi_dict["total_time"]),
-        "inference_time_ms": convert_string_to_float_ms(kpi_dict["inference_time"]),
-        "time_per_token_ms": convert_string_to_float_ms(kpi_dict["time_per_token"]),
-        "queue_time_ms": convert_string_to_float_ms(kpi_dict["queue_time"]),
-    }
+
+    try:
+        parsed_kpis = {
+            "total_time_ms": convert_string_to_float_ms(kpi_dict["total_time"]),
+            "inference_time_ms": convert_string_to_float_ms(kpi_dict["inference_time"]),
+            "time_per_token_ms": convert_string_to_float_ms(kpi_dict["time_per_token"]),
+            "queue_time_ms": convert_string_to_float_ms(kpi_dict["queue_time"]),
+        }
+    except:
+        print(input_string)
+        raise
+    return parsed_kpis
+
+
+def calcluate_throughput(avg_latency, user_count, duration=90, num_gen_tokens=50):
+    request_per_user_in_duration = ((duration * 1000) / avg_latency) * user_count
+    thorughput = (request_per_user_in_duration / duration) * num_gen_tokens
+    return thorughput
 
 
 def main(args):
@@ -69,24 +83,33 @@ def main(args):
         response = client.get_query_results(queryId=query_id)
     metrics = []
     for record in response["results"]:
-        metrics.append(extract_metrics(record[0]["value"]))
+        if "3mtotal_time" in record[0]["value"]:
+            metrics.append(extract_metrics(record[0]["value"]))
 
     if len(metrics) == 0:
         raise Exception("No metrics found")
 
     df = pd.DataFrame.from_records(metrics)
 
-    generated_tokens = len(df) * 50
-    throughput_gen_per_s = generated_tokens / df["total_time_ms"].sum() * 1000
+    throughput_gen_per_s = calcluate_throughput(df["total_time_ms"].mean(), int(args.vu))
+
+    # get quantization
+    if args.quantize:
+        quantization = args.quantize
+    else:
+        quantization = "none"
 
     # calculate the average inference time
     inference_time = {
         "Host": "sagemaker",
+        "Model Id": args.model_id,
         "Instance": args.instance_type,
-        "generated_tokens per request": "50",
-        "Do Sample": "1",
+        "Tensor parallelism degree": int(args.tp_degree),
+        "quantization": quantization,
+        "generated_tokens per request": 50,
+        "Do Sample": True,
         "Number of requests": len(df),
-        "Virtual Users": args.vu,
+        "Virtual Users": int(args.vu),
         "Thorughput (tokens/second)": throughput_gen_per_s,
         "Latency (ms/token) avg": df["time_per_token_ms"].mean(),
         "Latency (ms/token) min": df["time_per_token_ms"].min(),
@@ -114,7 +137,7 @@ def main(args):
         "Queue time ms min": df["queue_time_ms"].min(),
     }
     # write to json
-    with open(f"metrics_{args.endpoint_name.lower()}_{args.vu}.json", "w") as f:
+    with open(f"metrics_{args.endpoint_name.lower()}_{args.instance_type}.json", "w") as f:
         f.write(json.dumps(inference_time))
 
 

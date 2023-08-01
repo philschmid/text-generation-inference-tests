@@ -10,7 +10,8 @@ import argparse
 def parse_args():
     parser = argparse.ArgumentParser(description="A simple argument parser example")
     parser.add_argument("--action", choices=["deploy", "delete"], required=True)
-    parser.add_argument("--model_id", type=str, required=True)
+    parser.add_argument("--model_id", type=str)
+    parser.add_argument("--endpoint_name", type=str)
     parser.add_argument("--iam_role", default="sagemaker_execution_role", type=str)
     parser.add_argument("--tp_degree", type=int)
     parser.add_argument("--instance_type", type=str)
@@ -23,7 +24,10 @@ def parse_args():
 def main(args):
     iam = boto3.client("iam")
     role = iam.get_role(RoleName=args.iam_role)["Role"]["Arn"]
-    endpoint_name = f'{args.model_id.split("/")[-1]}-endpoint-{nanoid.generate(size=4)}'
+    if not args.endpoint_name:
+        endpoint_name = f'{args.model_id.split("/")[-1]}-endpoint-{nanoid.generate(size=4)}'
+    else:
+        endpoint_name = args.endpoint_name
 
     print(f"sagemaker role arn: {role}")
     print(f"endpoint name: {endpoint_name}")
@@ -53,7 +57,7 @@ def main(args):
             container_startup_health_check_timeout=300,
         )
     else:
-        predictor = HuggingFacePredictor(endpoint_name="Llama-2-7b-hf-endpoint-2023-07-31-05-50-26-571")
+        predictor = HuggingFacePredictor(endpoint_name=endpoint_name)
         predictor.delete_model()
         predictor.delete_endpoint()
 

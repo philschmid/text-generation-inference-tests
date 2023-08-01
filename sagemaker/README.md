@@ -38,7 +38,6 @@ python get_metrics.py  --endpoint_name Llama-2-7b-hf-endpoint-2023-07-31-05-50-2
 ```
 
 4. delete endpoint
-5. 
 ``` 
 python deploy.py --action delete --model_id <model_id>
 ```
@@ -46,20 +45,4 @@ python deploy.py --action delete --model_id <model_id>
 
 ## Tested models & configurations
 
-```bash
-python deploy.py --action deploy --model_id meta-llama/Llama-2-7b-hf --instance_type ml.g5.2xlarge --tp_degree 1 --token $(cat ~/.huggingface/token)
-```
-
-```bash
-k6 run sagemaker_load.js -e ENDPOINT_NAME=Llama-2-7b-hf-endpoint-2023-07-31-05-50-26-571 -e REGION=us-east-1 -e DO_SAMPLE=1 -e AWS_ACCESS_KEY_ID= -e AWS_SECRET_ACCESS_KEY=
-```
-
-wait in between 2 runs
-
-```bash
-python get_metrics.py  --endpoint_name Llama-2-7b-hf-endpoint-2023-07-31-05-50-26-571 --st 1690790829904 --et 1690790829904 --vu 1 --max_vu 2 --instance_type ml.g5.2xlarge
-```
-
-```bash
-python deploy.py --action delete --model_id Llama-2-7b-hf-endpoint-2023-07-31-05-50-26-571
-```
+See [run.sh](run.sh)

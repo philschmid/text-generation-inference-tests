@@ -1,1 +1,0 @@
-python get_metrics.py  --endpoint_name Llama-2-7b-hf-endpoint-2023-07-31-05-50-26-571 --st 1690794823232 --et 1690794984232 --vu 1 --max_vu 1

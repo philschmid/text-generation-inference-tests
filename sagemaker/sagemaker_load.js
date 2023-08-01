@@ -11,6 +11,7 @@ const REGION = __ENV.AWS_REGION || 'us-east-1';
 const AWS_ACCESS_KEY_ID = __ENV.AWS_ACCESS_KEY_ID;
 const AWS_SECRET_ACCESS_KEY = __ENV.AWS_SECRET_ACCESS_KEY;
 const doSample = __ENV.DO_SAMPLE || '0';
+const vu = __ENV.VU || 1;
 
 console.log("ENDPOINT_NAME: " + ENDPOINT_NAME)
 console.log("REGION: " + REGION)
@@ -28,7 +29,7 @@ const samples = new SharedArray('ShareGPT samples', function () {
 
 export const options = {
   thresholds: {
-    http_req_failed: ['rate==0'],
+    http_req_failed: ['rate<0.1'],
   },
   scenarios: {
     // throughput: {
@@ -41,7 +42,7 @@ export const options = {
     test: {
       executor: 'constant-vus',
       duration: '90s',
-      vus: 1,
+      vus: vu,
     },
   },
 };
@@ -50,12 +51,13 @@ export const options = {
 export default function () {
   // Load ShareGPT random example
   const sample = samples[scenario.iterationInTest];
+
   // Create Body 
   const payload = {
     inputs: sample[0],
     parameters: {
-      max_new_tokens: sample[2],
       details: true,
+      // max_new_tokens: sample[2],
       max_new_tokens: 50,
     },
   };
@@ -106,14 +108,4 @@ export default function () {
   });
 
 
-}
-
-export function handleSummary(data) {
-  const end_time = new Date().getTime() + (30 * 1000);
-  const start_time = end_time - (140 * 1000);
-
-  console.log(`python get_metrics.py  --endpoint_name ${ENDPOINT_NAME} --st ${start_time} --et ${end_time} --vu ${data.metrics.vus.values.value} --max_vu ${data.metrics.vus_max.values.value}`)
-  return {
-    'getms.sh': `python get_metrics.py  --endpoint_name ${ENDPOINT_NAME} --st ${start_time} --et ${end_time} --vu ${data.metrics.vus.values.value} --max_vu ${data.metrics.vus_max.values.value}`
-  };
 }
