@@ -1,2 +1,2 @@
 sagemaker
-nanoid
+pyyaml

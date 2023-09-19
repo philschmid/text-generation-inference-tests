@@ -54,22 +54,17 @@ def calcluate_throughput(avg_latency, user_count, duration=90, num_gen_tokens=50
     return thorughput
 
 
-def main(args):
+def get_metrics_from_cloudwatch(
+    endpoint_name=None, st=None, et=None, instance_type=None, tp_degree=None, vu=None, quantize=None, model_id=None
+):
     client = boto3.client("logs")
 
-    loggroup = f"/aws/sagemaker/Endpoints/{args.endpoint_name}"
-
-    ## For the latest
-    stream_response = client.describe_log_streams(
-        logGroupName=loggroup,  # Can be dynamic
-        orderBy="LastEventTime",  # For the latest events
-        limit=1,  # the last latest event, if you just want one
-    )
+    loggroup = f"/aws/sagemaker/Endpoints/{endpoint_name}"
 
     start_query_response = client.start_query(
         logGroupName=loggroup,
-        startTime=args.st,
-        endTime=args.et,
+        startTime=st,
+        endTime=et,
         queryString="fields @message | sort @timestamp desc",
         limit=10000,
     )
@@ -91,25 +86,25 @@ def main(args):
 
     df = pd.DataFrame.from_records(metrics)
 
-    throughput_gen_per_s = calcluate_throughput(df["total_time_ms"].mean(), int(args.vu))
+    throughput_gen_per_s = calcluate_throughput(df["total_time_ms"].mean(), int(vu))
 
     # get quantization
-    if args.quantize:
-        quantization = args.quantize
+    if quantize:
+        quantization = quantize
     else:
         quantization = "none"
 
     # calculate the average inference time
     inference_time = {
         "Host": "sagemaker",
-        "Model Id": args.model_id,
-        "Instance": args.instance_type,
-        "Tensor parallelism degree": int(args.tp_degree),
+        "Model Id": model_id,
+        "Instance": instance_type,
+        "Tensor parallelism degree": int(tp_degree),
         "quantization": quantization,
         "generated_tokens per request": 50,
         "Do Sample": True,
         "Number of requests": len(df),
-        "Virtual Users": int(args.vu),
+        "Virtual Users": int(vu),
         "Thorughput (tokens/second)": throughput_gen_per_s,
         "Latency (ms/token) avg": df["time_per_token_ms"].mean(),
         "Latency (ms/token) min": df["time_per_token_ms"].min(),
@@ -136,11 +131,13 @@ def main(args):
         "Queue time ms avg": df["queue_time_ms"].mean(),
         "Queue time ms min": df["queue_time_ms"].min(),
     }
-    # write to json
-    with open(f"metrics_{args.endpoint_name.lower()}_{args.instance_type}.json", "w") as f:
-        f.write(json.dumps(inference_time))
+    return inference_time
+
 
 
 if __name__ == "__main__":
     args = parse_args()
-    main(args)
+    res = get_metrics_from_cloudwatch(args)
+    
+    with open(f"{args.instance_type}_tp_{int(args.tp_degree)}_vu_{int(args.vu)}_{args.model_id.replace('/','-')}.json", "w") as f:
+        f.write(json.dumps(res))

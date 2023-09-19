@@ -1,0 +1,99 @@
+configs:
+# 7B Model 
+- model_id: meta-llama/Llama-2-7b-hf
+  instance_type: ml.g5.2xlarge
+  tp_degree: 1
+# - model_id: meta-llama/Llama-2-7b-hf
+#   instance_type: ml.g5.12xlarge
+#   tp_degree: 4
+# - model_id: meta-llama/Llama-2-7b-hf
+#   instance_type: ml.g5.48xlarge
+#   tp_degree: 8
+# - model_id: meta-llama/Llama-2-7b-hf
+#   instance_type: ml.p4d.24xlarge
+#   tp_degree: 8
+# - model_id: meta-llama/Llama-2-7b-hf
+#   instance_type: ml.p4de.24xlarge
+#   tp_degree: 8
+# # 13B Model 
+# - model_id: meta-llama/Llama-2-13b-hf
+#   instance_type: ml.g5.12xlarge
+#   tp_degree: 4
+# - model_id: meta-llama/Llama-2-13b-hf
+#   instance_type: ml.g5.48xlarge
+#   tp_degree: 8
+# - model_id: meta-llama/Llama-2-13b-hf
+#   instance_type: ml.p4d.24xlarge
+#   tp_degree: 8
+# - model_id: meta-llama/Llama-2-13b-hf
+#   instance_type: ml.p4de.24xlarge
+#   tp_degree: 8
+# # 70B Model 
+# - model_id: meta-llama/Llama-2-70b-hf
+#   instance_type: ml.g5.48xlarge
+#   tp_degree: 8
+# - model_id: meta-llama/Llama-2-70b-hf
+#   instance_type: ml.p4d.24xlarge
+#   tp_degree: 8
+# - model_id: meta-llama/Llama-2-70b-hf
+#   instance_type: ml.p4de.24xlarge
+#   tp_degree: 8
+# # GTPQ 7B Model
+# - model_id: TheBloke/Llama-2-7B-GPTQ
+#   instance_type: ml.g5.2xlarge
+#   tp_degree: 1
+#   quantize: qptq
+# - model_id: TheBloke/Llama-2-7B-GPTQ
+#   instance_type: ml.g5.12xlarge
+#   tp_degree: 4
+#   quantize: qptq
+# - model_id: TheBloke/Llama-2-7B-GPTQ
+#   instance_type: ml.g5.48xlarge
+#   tp_degree: 8
+#   quantize: qptq
+# - model_id: TheBloke/Llama-2-7B-GPTQ
+#   instance_type: ml.p4d.24xlarge
+#   tp_degree: 8
+#   quantize: qptq
+# - model_id: TheBloke/Llama-2-7B-GPTQ
+#   instance_type: ml.p4de.24xlarge
+#   tp_degree: 8
+#   quantize: qptq
+# # GPTQ 13B Model 
+# - model_id: TheBloke/Llama-2-13B-GPTQ
+#   instance_type: ml.g5.2xlarge
+#   tp_degree: 1
+#   quantize: qptq
+# - model_id: TheBloke/Llama-2-13B-GPTQ
+#   instance_type: ml.g5.12xlarge
+#   tp_degree: 4
+#   quantize: qptq
+# - model_id: TheBloke/Llama-2-13B-GPTQ
+#   instance_type: ml.g5.48xlarge
+#   tp_degree: 8
+#   quantize: qptq
+# - model_id: TheBloke/Llama-2-13B-GPTQ
+#   instance_type: ml.p4d.24xlarge
+#   tp_degree: 8
+#   quantize: qptq
+# - model_id: TheBloke/Llama-2-13B-GPTQ
+#   instance_type: ml.p4de.24xlarge
+#   tp_degree: 8
+#   quantize: qptq
+# # GPTQ 70B Model 
+# - model_id: TheBloke/Llama-2-70B-GPTQ
+#   instance_type: ml.g5.12xlarge
+#   tp_degree: 4
+#   quantize: qptq
+# - model_id: TheBloke/Llama-2-70B-GPTQ
+#   instance_type: ml.g5.48xlarge
+#   tp_degree: 8
+#   quantize: qptq
+# - model_id: TheBloke/Llama-2-70B-GPTQ
+#   instance_type: ml.p4d.24xlarge
+#   tp_degree: 8
+#   quantize: qptq
+# - model_id: TheBloke/Llama-2-70B-GPTQ
+#   instance_type: ml.p4de.24xlarge
+#   tp_degree: 8
+#   quantize: qptq
