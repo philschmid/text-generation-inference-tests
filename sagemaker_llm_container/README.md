@@ -1,5 +1,12 @@
 # Benchmark TGI on Amazon SageMaker
 
+## Run all `configs.yaml` 
+
+`python benchmark.py --config-file configs.yaml`
+
+
+
+
 ## Prerequisites
 * `sagemaker` sdk installed
 * quota for instance you want to test
