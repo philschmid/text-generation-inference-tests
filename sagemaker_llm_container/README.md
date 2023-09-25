@@ -1,55 +1,41 @@
 # Benchmark TGI on Amazon SageMaker
 
-## Run all `configs.yaml` 
+This directory contains the code to benchmark TGI on Amazon SageMaker. The benchmark can be used to compare the performance of different models, instance types, and number of concurrent clients.
+
+## Prerequisites
+
+* `sagemaker` sdk installed
+* quota for instance you want to test
+* `huggingface-cli` installed and logged in
+
+## Run all `configs.yaml`
+
+You can run all the benchmarks in `configs.yaml` by running. You can modify the `configs.yaml` to add more benchmarks or modify the existing ones. The `configs.yaml` file is a list of dictionaries. 
+
+```yaml
+- model_id: meta-llama/Llama-2-7b-hf
+  instance_type: ml.g5.2xlarge
+  tp_degree: 1
+```
+
+For each configuration 4 benchmarks will we run with `[1,5,10,20]` concurrent clients. You can run the benchmarks by running the following command.
 
 `python benchmark.py --config-file configs.yaml`
 
+The results will be saved in a `json` file.
 
 
+## Run Single Benchmark 
 
-## Prerequisites
-* `sagemaker` sdk installed
-* quota for instance you want to test
-
-# Run
-
-1. deploy model 
+You can run a single benchmark, with a single configuration by running the following command. 
 
 ```bash
-python deploy.py --action deploy --model_id <model_id> --instance_type <instance_type> --tp_degree <degree>
+python benchmark.py \
+  --model_id meta-llama/Llama-2-7b-hf \
+  --instance_type ml.g5.2xlarge \
+  --tp_degree 1 \
+  --vu 1 \
+  --quantize gptq \
+  --iam_role sagemaker_execution_role \
+  --token $(cat ~/.huggingface/token)
 ```
-
-2. run benchmark
-
-const ENDPOINT_NAME = __ENV.ENDPOINT_NAME;
-const REGION = __ENV.AWS_REGION || 'us-east-1';
-const AWS_ACCESS_KEY_ID = __ENV.AWS_ACCESS_KEY_ID;
-const AWS_SECRET_ACCESS_KEY = __ENV.AWS_SECRET_ACCESS_KEY;
-const AWS_SESSION_TOKEN = __ENV.AWS_SESSION_TOKEN;
-
-* `ENDPOINT_NAME` is the endpoint name you want to test
-* `REGION` is the region of endpoint
-* `AWS_ACCESS_KEY_ID` is the access key id of your aws account
-* `AWS_SECRET_ACCESS_KEY` is the secret access key of your aws account
-* `AWS_SESSION_TOKEN` is the session token of your aws account
-* `DO_SAMPLE=1``
-
-
-```bash
-k6 run sagemaker_load.js -e ENDPOINT_NAME=<name> -e REGION=us-east-1 -e AWS_ACCESS_KEY_ID=key_id -e AWS_SECRET_ACCESS_KEY=secret_key -e AWS_SESSION_TOKEN=token -e DO_SAMPLE=1
-```
-
-3. retrieve metrics
-```bash
-python get_metrics.py  --endpoint_name Llama-2-7b-hf-endpoint-2023-07-31-05-50-26-571 --st 1690790829904 --et 1690790829904 --vu 1 --max_vu 2
-```
-
-4. delete endpoint
-``` 
-python deploy.py --action delete --model_id <model_id>
-```
-
-
-## Tested models & configurations
-
-See [run.sh](run.sh)
