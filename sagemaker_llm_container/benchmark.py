@@ -17,7 +17,7 @@ def parse_args():
     parser.add_argument("--iam_role", default="sagemaker_execution_role", type=str)
     parser.add_argument("--tp_degree", type=int)
     parser.add_argument("--instance_type", type=str)
-    parser.add_argument("--token", type=str)
+    parser.add_argument("--token", type=str, default=None)
     parser.add_argument("--vu", type=int, default=1)
     parser.add_argument("--quantize", choices=["gptq"])
     parser.add_argument("--config-file", type=str, default=None)
@@ -43,7 +43,7 @@ def run_benchmark(
     role = iam.get_role(RoleName=iam_role)["Role"]["Arn"]
 
     print(f"sagemaker role arn: {role}")
-    print(f"token: {token[:10]}")
+    print(f"token: {token[:10] if token else None}")
     print(f"model id: {model_id}")
     print(f"instance type: {instance_type}")
     print(f"tp_degree: {tp_degree}")
@@ -122,6 +122,7 @@ def run_benchmark(
             vu=vu,
             quantize=quantize,
             model_id=model_id,
+            inference_component=inference_component,
         )
 
         # print results

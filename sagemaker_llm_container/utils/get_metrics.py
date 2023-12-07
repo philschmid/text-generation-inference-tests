@@ -55,11 +55,22 @@ def calcluate_throughput(avg_latency, user_count, duration=90, num_gen_tokens=50
 
 
 def get_metrics_from_cloudwatch(
-    endpoint_name=None, st=None, et=None, instance_type=None, tp_degree=None, vu=None, quantize=None, model_id=None
+    endpoint_name=None,
+    st=None,
+    et=None,
+    instance_type=None,
+    tp_degree=None,
+    vu=None,
+    quantize=None,
+    model_id=None,
+    inference_component=None,
 ):
     client = boto3.client("logs")
 
-    loggroup = f"/aws/sagemaker/Endpoints/{endpoint_name}"
+    if inference_component:
+        loggroup = f"/aws/sagemaker/InferenceComponents/{inference_component}"
+    else:
+        loggroup = f"/aws/sagemaker/Endpoints/{endpoint_name}"
 
     start_query_response = client.start_query(
         logGroupName=loggroup,
@@ -134,10 +145,12 @@ def get_metrics_from_cloudwatch(
     return inference_time
 
 
-
 if __name__ == "__main__":
     args = parse_args()
     res = get_metrics_from_cloudwatch(args)
-    
-    with open(f"{args.instance_type}_tp_{int(args.tp_degree)}_vu_{int(args.vu)}_{args.model_id.replace('/','-')}.json", "w") as f:
+
+    with open(
+        f"{args.instance_type}_tp_{int(args.tp_degree)}_vu_{int(args.vu)}_{args.model_id.replace('/','-')}.json",
+        "w",
+    ) as f:
         f.write(json.dumps(res))

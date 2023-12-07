@@ -51,11 +51,11 @@ export const options = {
 
 export default function () {
   // Load ShareGPT random example
-  const sample = samples[scenario.iterationInTest];
+  const sample = "Write a 500 word long story about llamas";
 
   // Create Body 
   const payload = {
-    inputs: sample[0],
+    inputs: sample,
     parameters: {
       details: true,
       // max_new_tokens: sample[2],

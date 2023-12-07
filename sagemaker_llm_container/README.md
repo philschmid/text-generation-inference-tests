@@ -50,8 +50,5 @@ python benchmark.py \
   --inference_component "huggingface-pytorch-tgi-inference-2023-12-07-15-1701963267-082e" \
   --model_id "meta-llama/Llama-2-13b-chat-hf" \
   --tp_degree 1 \
-  --vu 10 \
-  --quantize gptq \
-  --iam_role sagemaker_execution_role \
-  --token $(cat ~/.huggingface/token)
+  --vu 50 
 ```
