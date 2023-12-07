@@ -7,6 +7,8 @@ This directory contains the code to benchmark TGI on Amazon SageMaker. The bench
 * `sagemaker` sdk installed
 * quota for instance you want to test
 * `huggingface-cli` installed and logged in
+* clone the repo and `cd` into `sagemaker_llm_container`
+* iam role with sagemaker permissions
 
 ## Run all `configs.yaml`
 
@@ -35,6 +37,20 @@ python benchmark.py \
   --instance_type ml.g5.2xlarge \
   --tp_degree 1 \
   --vu 1 \
+  --quantize gptq \
+  --iam_role sagemaker_execution_role \
+  --token $(cat ~/.huggingface/token)
+```
+
+## Run Benchmark for deployed model
+
+```python
+python benchmark.py \
+  --endpoint_name "llama-2-13b-chat-d10d5975-f606-44f8-a9aa-adb8e4157180" \
+  --inference_component "huggingface-pytorch-tgi-inference-2023-12-07-15-1701963267-082e" \
+  --model_id "meta-llama/Llama-2-13b-chat-hf" \
+  --tp_degree 1 \
+  --vu 10 \
   --quantize gptq \
   --iam_role sagemaker_execution_role \
   --token $(cat ~/.huggingface/token)

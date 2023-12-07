@@ -7,6 +7,7 @@ import { scenario } from 'k6/execution';
 import { SharedArray } from 'k6/data';
 
 const ENDPOINT_NAME = __ENV.ENDPOINT_NAME;
+const INFERENCE_COMPONENT = __ENV.INFERENCE_COMPONENT || undefined;
 const REGION = __ENV.AWS_REGION || 'us-east-1';
 const AWS_ACCESS_KEY_ID = __ENV.AWS_ACCESS_KEY_ID;
 const AWS_SECRET_ACCESS_KEY = __ENV.AWS_SECRET_ACCESS_KEY;
@@ -87,14 +88,19 @@ export default function () {
    * The signed request can then be used to send the request to the AWS API.
    * https://k6.io/docs/javascript-api/jslib/aws/signaturev4/
    */
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+  if (INFERENCE_COMPONENT) {
+    headers['X-Amzn-SageMaker-Inference-Component'] = INFERENCE_COMPONENT
+  }
+
   const signedRequest = signer.sign({
     method: 'POST',
     protocol: 'https',
     hostname: `runtime.sagemaker.${REGION}.amazonaws.com`,
     path: `/endpoints/${ENDPOINT_NAME}/invocations`,
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: headers,
     body: JSON.stringify(payload),
     uriEscapePath: false,
     applyChecksum: false,
