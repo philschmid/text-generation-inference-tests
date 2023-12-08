@@ -5,6 +5,7 @@ This directory contains the code to benchmark TGI on Amazon SageMaker. The bench
 ## Prerequisites
 
 * `sagemaker` sdk installed
+* [k6](https://k6.io/) installed and configured
 * quota for instance you want to test
 * `huggingface-cli` installed and logged in
 * clone the repo and `cd` into `sagemaker_llm_container`
